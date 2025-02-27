@@ -56,27 +56,6 @@ export default function Home() {
   const [isPressed, setIsPressed] = useState<boolean>(false);
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
 
-  useEffect(() => {
-    const savedCount = localStorage.getItem("count");
-    if (savedCount) {
-      setCount(parseInt(savedCount, 10));
-      setPrevCount(parseInt(savedCount, 10));
-    }
-
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.code === "Space" || e.code === "Enter") {
-        handleCountUp();
-      } else if (e.code === "ArrowLeft") {
-        handleCountDown();
-      } else if (e.code === "KeyR") {
-        handleResetClick();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, []);
-
   // リップルエフェクトの作成
   const createRipple = useCallback((event: React.MouseEvent) => {
     const button = event.currentTarget;
@@ -96,41 +75,95 @@ export default function Home() {
     setTimeout(() => ripple.remove(), 600);
   }, []);
 
-  const handleCountUp = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    if (e) createRipple(e);
+  const handleCountUp = useCallback(
+    (e?: React.MouseEvent) => {
+      e?.stopPropagation();
+      if (e) createRipple(e);
 
-    setPrevCount(count);
-    const newCount = count + 1;
-    setCount(newCount);
-    localStorage.setItem("count", newCount.toString());
+      setPrevCount(count);
+      const newCount = count + 1;
+      setCount(newCount);
+      localStorage.setItem("count", newCount.toString());
 
-    setIsPressed(true);
-    setTimeout(() => setIsPressed(false), 150);
-  };
+      setIsPressed(true);
+      setTimeout(() => setIsPressed(false), 150);
+    },
+    [count, createRipple]
+  );
 
-  const handleCountDown = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    if (e) createRipple(e);
+  const handleCountDown = useCallback(
+    (e?: React.MouseEvent) => {
+      e?.stopPropagation();
+      if (e) createRipple(e);
 
-    setPrevCount(count);
-    const newCount = count - 1;
-    setCount(newCount);
-    localStorage.setItem("count", newCount.toString());
-  };
+      setPrevCount(count);
+      const newCount = count - 1;
+      setCount(newCount);
+      localStorage.setItem("count", newCount.toString());
+    },
+    [count, createRipple]
+  );
 
-  const handleResetClick = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    if (e) createRipple(e);
-    setShowResetConfirm(true);
-  };
+  const handleResetClick = useCallback(
+    (e?: React.MouseEvent) => {
+      e?.stopPropagation();
+      if (e) createRipple(e);
+      setShowResetConfirm(true);
+    },
+    [createRipple]
+  );
 
-  const handleResetConfirm = () => {
+  const handleResetConfirm = useCallback(() => {
     setPrevCount(count);
     setCount(0);
     localStorage.setItem("count", "0");
     setShowResetConfirm(false);
+  }, [count]);
+
+  // キーマッピングの定義
+  const KEY_MAPPINGS = {
+    INCREMENT: [
+      "Space",
+      "Enter",
+      "ArrowRight",
+      "ArrowUp",
+      "KeyK",
+      "KeyL",
+      "KeyW",
+      "KeyD",
+    ],
+    DECREMENT: [
+      "Backspace",
+      "ArrowLeft",
+      "ArrowDown",
+      "KeyH",
+      "KeyJ",
+      "KeyA",
+      "KeyS",
+    ],
+    RESET: ["Escape"],
   };
+
+  useEffect(() => {
+    const savedCount = localStorage.getItem("count");
+    if (savedCount) {
+      setCount(parseInt(savedCount, 10));
+      setPrevCount(parseInt(savedCount, 10));
+    }
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (KEY_MAPPINGS.INCREMENT.includes(e.code)) {
+        handleCountUp();
+      } else if (KEY_MAPPINGS.DECREMENT.includes(e.code)) {
+        handleCountDown();
+      } else if (KEY_MAPPINGS.RESET.includes(e.code)) {
+        handleResetClick();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [handleCountUp, handleCountDown, handleResetClick]);
 
   return (
     <main
@@ -163,9 +196,15 @@ export default function Home() {
               {count}
             </div>
 
-            <p className="text-base sm:text-lg text-white/80 font-medium pointer-events-none">
-              Tap anywhere to count up
-            </p>
+            <div className="flex flex-col items-center space-y-2 text-white/80">
+              <p className="text-base sm:text-lg font-medium pointer-events-none">
+                Tap anywhere to count up
+              </p>
+              <p className="text-sm text-white/60">
+                Keyboard shortcuts: Space/Enter/→/↑/K/L/W/D (up), ←/↓/H/J/A/S
+                (down), Esc (reset)
+              </p>
+            </div>
           </div>
         </div>
       </div>
