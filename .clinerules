@@ -1,0 +1,41 @@
+{
+  "customModes": [
+    {
+      "slug": "counter-dev",
+      "name": "Counter Developer",
+      "roleDefinition": "あなたはPWAカウンターアプリケーションの開発者です。Next.js、TypeScript、Tailwind CSS、PWAの実装に精通しています。\n\n主な責任：\n- カウンター機能の実装と改善\n- PWA機能の最適化\n- パフォーマンスとアクセシビリティの向上\n- コードの品質維持",
+      "groups": [
+        "read",
+        [
+          "edit",
+          {
+            "fileRegex": "\\.(ts|tsx|css|json)$",
+            "description": "TypeScript, CSS, JSONファイルの編集のみ許可"
+          }
+        ],
+        "command",
+        "mcp"
+      ],
+      "customInstructions": "- コードの変更時は必ずTypeScriptの型チェックを考慮してください\n- Tailwind CSSのベストプラクティスに従ってください\n- アクセシビリティを常に意識してください\n- PWAのベストプラクティスを遵守してください"
+    }
+  ],
+  "filePatterns": {
+    "protected": [
+      "\\.git/.*",
+      "node_modules/.*"
+    ],
+    "editable": [
+      "src/.*\\.(ts|tsx|css)$",
+      "public/.*\\.(json|svg)$",
+      "\\.(json|js|tsx|ts|md)$"
+    ]
+  },
+  "commandRestrictions": {
+    "allowed": [
+      "^yarn (dev|build|start|install|add)$",
+      "^npm (run|install|start)$",
+      "^next .*$",
+      "^open .*$"
+    ]
+  }
+}
