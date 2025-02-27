@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja">
+    <html lang="ja" className="gradient-animate">
       <head>
         <meta charSet="utf-8" />
         <meta
@@ -23,7 +23,7 @@ export default function RootLayout({
           name="description"
           content="シンプルなPWAカウンターアプリケーション"
         />
-        <meta name="theme-color" content="#4A90E2" />
+        <meta name="theme-color" content="#6366f1" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="カウンター" />
         <meta

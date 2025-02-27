@@ -1,3 +1,63 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 基本スタイル */
+@layer base {
+  html, body {
+    @apply min-h-screen;
+    background: linear-gradient(-45deg, #6366f1, #a855f7, #ec4899);
+    background-size: 200% 200%;
+  }
+}
+
+/* カスタムユーティリティ */
+@layer utilities {
+  .gradient-animate {
+    animation: gradient-shift 3s ease infinite;
+  }
+}
+
+/* リップルエフェクト */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%);
+  transform: scale(0);
+  pointer-events: none;
+}
+
+/* カウンター数字のアニメーション */
+.counter-number {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.counter-number.increment {
+  animation: slide-up 0.3s ease-out;
+}
+
+.counter-number.decrement {
+  animation: slide-down 0.3s ease-out;
+}
+
+/* タップ時のグラデーション変化 */
+.gradient-active {
+  transition: transform 0.3s ease-in-out;
+}
+
+.gradient-active:active {
+  transform: scale(0.99);
+  background: linear-gradient(-45deg, #7c3aed, #d946ef, #f43f5e);
+  background-size: 200% 200%;
+}
+
+/* パネルのグラス効果 */
+.glass-panel {
+  @apply backdrop-blur-md bg-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1)] border border-white/20 text-white;
+  transition: all 0.3s ease-in-out;
+}
+
+.glass-panel:hover {
+  @apply shadow-[0_12px_40px_rgba(0,0,0,0.15)] bg-white/15;
+}

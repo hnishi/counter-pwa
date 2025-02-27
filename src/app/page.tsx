@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -25,7 +25,7 @@ const ConfirmDialog = ({
       aria-modal="true"
     >
       <div
-        className="bg-white/10 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-white/20 max-w-sm w-full mx-4"
+        className="glass-panel p-6 rounded-2xl max-w-sm w-full mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         <p className="text-white text-lg mb-6 text-center">{message}</p>
@@ -52,6 +52,7 @@ const ConfirmDialog = ({
 
 export default function Home() {
   const [count, setCount] = useState<number>(0);
+  const [prevCount, setPrevCount] = useState<number>(0);
   const [isPressed, setIsPressed] = useState<boolean>(false);
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
 
@@ -59,6 +60,7 @@ export default function Home() {
     const savedCount = localStorage.getItem("count");
     if (savedCount) {
       setCount(parseInt(savedCount, 10));
+      setPrevCount(parseInt(savedCount, 10));
     }
 
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -75,8 +77,30 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, []);
 
+  // リップルエフェクトの作成
+  const createRipple = useCallback((event: React.MouseEvent) => {
+    const button = event.currentTarget;
+    const ripple = document.createElement("div");
+    const rect = button.getBoundingClientRect();
+
+    const diameter = Math.max(rect.width, rect.height);
+    const radius = diameter / 2;
+
+    ripple.style.width = ripple.style.height = `${diameter}px`;
+    ripple.style.left = `${event.clientX - rect.left - radius}px`;
+    ripple.style.top = `${event.clientY - rect.top - radius}px`;
+
+    ripple.className = "ripple animate-ripple";
+    button.appendChild(ripple);
+
+    setTimeout(() => ripple.remove(), 600);
+  }, []);
+
   const handleCountUp = (e?: React.MouseEvent) => {
     e?.stopPropagation();
+    if (e) createRipple(e);
+
+    setPrevCount(count);
     const newCount = count + 1;
     setCount(newCount);
     localStorage.setItem("count", newCount.toString());
@@ -87,6 +111,9 @@ export default function Home() {
 
   const handleCountDown = (e?: React.MouseEvent) => {
     e?.stopPropagation();
+    if (e) createRipple(e);
+
+    setPrevCount(count);
     const newCount = count - 1;
     setCount(newCount);
     localStorage.setItem("count", newCount.toString());
@@ -94,10 +121,12 @@ export default function Home() {
 
   const handleResetClick = (e?: React.MouseEvent) => {
     e?.stopPropagation();
+    if (e) createRipple(e);
     setShowResetConfirm(true);
   };
 
   const handleResetConfirm = () => {
+    setPrevCount(count);
     setCount(0);
     localStorage.setItem("count", "0");
     setShowResetConfirm(false);
@@ -106,23 +135,24 @@ export default function Home() {
   return (
     <main
       onClick={handleCountUp}
-      className={`h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500
-        transition-all duration-300 cursor-pointer relative overflow-hidden
-        ${isPressed ? "scale-[0.98]" : ""}`}
+      className="h-screen gradient-active gradient-animate relative overflow-hidden cursor-pointer"
     >
       <div className="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-6">
-        <div
-          className="w-full max-w-md p-6 sm:p-8 rounded-2xl backdrop-blur-md bg-white/10
-          shadow-[0_8px_32px_rgba(0,0,0,0.1)] border border-white/20"
-        >
+        <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl glass-panel">
           <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-white text-center tracking-tight">
             Counter
           </h1>
 
           <div className="flex flex-col items-center space-y-6 sm:space-y-8">
             <div
-              className={`text-7xl sm:text-9xl font-bold text-white
-                ${isPressed ? "scale-110" : "scale-100"}
+              className={`text-7xl sm:text-9xl font-bold text-white counter-number
+                ${
+                  count > prevCount
+                    ? "increment"
+                    : count < prevCount
+                    ? "decrement"
+                    : ""
+                }
                 transition-all duration-150 ease-out`}
               style={{
                 textShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
@@ -143,30 +173,27 @@ export default function Home() {
       <div className="absolute bottom-16 left-0 right-0 flex justify-center items-center gap-4 p-4 sm:p-6 pointer-events-none">
         <button
           onClick={handleCountDown}
-          className="px-6 sm:px-8 py-2.5 sm:py-3 bg-white/10 text-white rounded-full
-            hover:bg-white/20 transition-all duration-300 backdrop-blur-md
-            border border-white/20 shadow-lg min-w-[120px]
-            active:scale-95 pointer-events-auto"
+          className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full
+            glass-panel hover:scale-105 min-w-[120px]
+            active:scale-95 pointer-events-auto overflow-hidden relative"
           aria-label="Count down"
         >
           -1
         </button>
         <button
           onClick={handleResetClick}
-          className="px-6 sm:px-8 py-2.5 sm:py-3 bg-white/10 text-white rounded-full
-            hover:bg-white/20 transition-all duration-300 backdrop-blur-md
-            border border-white/20 shadow-lg min-w-[120px]
-            active:scale-95 pointer-events-auto"
+          className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full
+            glass-panel hover:scale-105 min-w-[120px]
+            active:scale-95 pointer-events-auto overflow-hidden relative"
           aria-label="Reset counter"
         >
           Reset
         </button>
         <button
           onClick={handleCountUp}
-          className="px-6 sm:px-8 py-2.5 sm:py-3 bg-white/10 text-white rounded-full
-            hover:bg-white/20 transition-all duration-300 backdrop-blur-md
-            border border-white/20 shadow-lg min-w-[120px]
-            active:scale-95 pointer-events-auto"
+          className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full
+            glass-panel hover:scale-105 min-w-[120px]
+            active:scale-95 pointer-events-auto overflow-hidden relative"
           aria-label="Count up"
         >
           +1
