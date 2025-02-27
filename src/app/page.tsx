@@ -6,7 +6,6 @@ export default function Home() {
   const [count, setCount] = useState<number>(0);
   const [isPressed, setIsPressed] = useState<boolean>(false);
 
-  // 初回マウント時のみローカルストレージから読み込み
   useEffect(() => {
     const savedCount = localStorage.getItem("count");
     if (savedCount) {
@@ -19,13 +18,12 @@ export default function Home() {
     setCount(newCount);
     localStorage.setItem("count", newCount.toString());
 
-    // タップアニメーション
     setIsPressed(true);
     setTimeout(() => setIsPressed(false), 150);
   };
 
   const handleReset = (e: React.MouseEvent) => {
-    e.stopPropagation(); // メインエリアのクリックイベントを防止
+    e.stopPropagation();
     setCount(0);
     localStorage.setItem("count", "0");
   };
@@ -33,34 +31,46 @@ export default function Home() {
   return (
     <main
       onClick={handlePress}
-      className={`flex min-h-screen flex-col items-center justify-between p-8 bg-gray-100 cursor-pointer
-        ${isPressed ? "bg-gray-200" : ""} transition-colors duration-150`}
+      className={`min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500
+        transition-all duration-300 cursor-pointer p-6 flex flex-col items-center justify-between
+        ${isPressed ? "scale-[0.98]" : ""}`}
     >
-      <div className="w-full max-w-xl p-8 bg-white rounded-xl shadow-lg text-center">
-        <h1 className="text-3xl font-bold mb-8 text-gray-800">PWAカウンター</h1>
+      <div
+        className="w-full max-w-md p-8 mt-12 rounded-2xl backdrop-blur-md bg-white/10
+        shadow-[0_8px_32px_rgba(0,0,0,0.1)] border border-white/20"
+      >
+        <h1 className="text-4xl font-bold mb-8 text-white text-center tracking-tight">
+          Counter
+        </h1>
 
         <div className="flex flex-col items-center space-y-8">
           <div
-            className={`text-8xl font-bold text-blue-600
-              ${
-                isPressed ? "scale-110" : "scale-100"
-              } transition-transform duration-150`}
+            className={`text-9xl font-bold text-white
+              ${isPressed ? "scale-110" : "scale-100"}
+              transition-all duration-150 ease-out
+              text-shadow-lg`}
+            style={{
+              textShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+            }}
           >
             {count}
           </div>
 
-          <p className="text-gray-600 text-xl pointer-events-none">
-            画面をタップしてカウントアップ！
+          <p className="text-lg text-white/80 font-medium pointer-events-none">
+            Tap anywhere to count up
           </p>
         </div>
       </div>
 
       <button
         onClick={handleReset}
-        className="mt-8 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-md active:shadow-sm active:translate-y-0.5 transform"
-        aria-label="カウントをリセット"
+        className="mb-12 px-8 py-3 bg-white/10 text-white rounded-full
+          hover:bg-white/20 transition-all duration-300 backdrop-blur-md
+          border border-white/20 shadow-lg
+          active:scale-95"
+        aria-label="Reset counter"
       >
-        リセット
+        Reset
       </button>
     </main>
   );
