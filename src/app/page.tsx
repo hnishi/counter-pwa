@@ -21,41 +21,74 @@ const vibrate = (pattern: number[]) => {
   window.navigator.vibrate(pattern);
 };
 
-const playSound = (pattern: {
+// AudioContext インスタンスを保持
+let audioContext: AudioContext | null = null;
+let lastPlayTime = 0;
+const DEBOUNCE_TIME = 50; // ms
+
+const playSound = async (pattern: {
   frequency: number;
   duration: number;
   repeat?: number;
 }) => {
   if (typeof window === "undefined") return;
 
-  const audioContext = new (window.AudioContext ||
-    (window as any).webkitAudioContext)();
-  const playNote = () => {
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+  // 連続実行の制限
+  const now = Date.now();
+  if (now - lastPlayTime < DEBOUNCE_TIME) {
+    return;
+  }
+  lastPlayTime = now;
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    oscillator.type = "sine";
-    oscillator.frequency.value = pattern.frequency;
-
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(
-      0.01,
-      audioContext.currentTime + pattern.duration / 1000
-    );
-
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + pattern.duration / 1000);
-  };
-
-  if (pattern.repeat) {
-    for (let i = 0; i < pattern.repeat; i++) {
-      setTimeout(playNote, i * (pattern.duration + 50));
+  try {
+    // AudioContextの初期化または再利用
+    if (!audioContext) {
+      audioContext = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
     }
-  } else {
-    playNote();
+
+    // 状態がsuspendedの場合は再開
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
+
+    const playNote = () => {
+      const oscillator = audioContext!.createOscillator();
+      const gainNode = audioContext!.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext!.destination);
+
+      oscillator.type = "sine";
+      oscillator.frequency.value = pattern.frequency;
+
+      gainNode.gain.setValueAtTime(0.1, audioContext!.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioContext!.currentTime + pattern.duration / 1000
+      );
+
+      oscillator.start();
+      oscillator.stop(audioContext!.currentTime + pattern.duration / 1000);
+    };
+
+    if (pattern.repeat) {
+      for (let i = 0; i < pattern.repeat; i++) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, i * (pattern.duration + 50))
+        );
+        playNote();
+      }
+    } else {
+      playNote();
+    }
+  } catch (error) {
+    console.error("Audio playback error:", error);
+    // エラーが発生した場合はコンテキストをリセット
+    if (audioContext) {
+      audioContext.close();
+      audioContext = null;
+    }
   }
 };
 
@@ -157,9 +190,17 @@ export default function Home() {
   );
 
   const handleSound = useCallback(
-    (pattern: { frequency: number; duration: number; repeat?: number }) => {
+    async (pattern: {
+      frequency: number;
+      duration: number;
+      repeat?: number;
+    }) => {
       if (!isSoundAvailable || !soundEnabled) return;
-      playSound(pattern);
+      try {
+        await playSound(pattern);
+      } catch (error) {
+        console.error("Failed to play sound:", error);
+      }
     },
     [isSoundAvailable, soundEnabled]
   );
