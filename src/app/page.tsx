@@ -50,11 +50,78 @@ const ConfirmDialog = ({
   );
 };
 
+// Format counter number
+const formatNumber = (num: number): string => {
+  return num < 0 ? `-${Math.abs(num)}` : num.toString();
+};
+
 export default function Home() {
   const [count, setCount] = useState<number>(0);
   const [prevCount, setPrevCount] = useState<number>(0);
   const [isPressed, setIsPressed] = useState<boolean>(false);
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+
+  const handleCountUp = useCallback(
+    (e?: React.MouseEvent) => {
+      e?.stopPropagation();
+      if (e) createRipple(e);
+
+      setPrevCount(count);
+      const newCount = count + 1;
+      setCount(newCount);
+      localStorage.setItem("count", newCount.toString());
+
+      setIsPressed(true);
+      setTimeout(() => setIsPressed(false), 150);
+    },
+    [count]
+  );
+
+  const handleCountDown = useCallback(
+    (e?: React.MouseEvent) => {
+      e?.stopPropagation();
+      if (e) createRipple(e);
+
+      setPrevCount(count);
+      const newCount = count - 1;
+      setCount(newCount);
+      localStorage.setItem("count", newCount.toString());
+
+      setIsPressed(true);
+      setTimeout(() => setIsPressed(false), 150);
+    },
+    [count]
+  );
+
+  const handleResetClick = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (e) createRipple(e);
+    setShowResetConfirm(true);
+  }, []);
+
+  const handleKeyPress = useCallback(
+    (e: KeyboardEvent) => {
+      switch (e.code) {
+        case "Space":
+        case "Enter":
+        case "ArrowUp":
+        case "ArrowRight":
+          e.preventDefault();
+          handleCountUp();
+          break;
+        case "ArrowLeft":
+        case "ArrowDown":
+          e.preventDefault();
+          handleCountDown();
+          break;
+        case "Escape":
+          e.preventDefault();
+          setShowResetConfirm(true);
+          break;
+      }
+    },
+    [handleCountUp, handleCountDown]
+  );
 
   useEffect(() => {
     const savedCount = localStorage.getItem("count");
@@ -63,21 +130,10 @@ export default function Home() {
       setPrevCount(parseInt(savedCount, 10));
     }
 
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.code === "Space" || e.code === "Enter") {
-        handleCountUp();
-      } else if (e.code === "ArrowLeft") {
-        handleCountDown();
-      } else if (e.code === "KeyR") {
-        handleResetClick();
-      }
-    };
-
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, []);
+  }, [handleKeyPress]);
 
-  // リップルエフェクトの作成
   const createRipple = useCallback((event: React.MouseEvent) => {
     const button = event.currentTarget;
     const ripple = document.createElement("div");
@@ -95,35 +151,6 @@ export default function Home() {
 
     setTimeout(() => ripple.remove(), 600);
   }, []);
-
-  const handleCountUp = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    if (e) createRipple(e);
-
-    setPrevCount(count);
-    const newCount = count + 1;
-    setCount(newCount);
-    localStorage.setItem("count", newCount.toString());
-
-    setIsPressed(true);
-    setTimeout(() => setIsPressed(false), 150);
-  };
-
-  const handleCountDown = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    if (e) createRipple(e);
-
-    setPrevCount(count);
-    const newCount = count - 1;
-    setCount(newCount);
-    localStorage.setItem("count", newCount.toString());
-  };
-
-  const handleResetClick = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    if (e) createRipple(e);
-    setShowResetConfirm(true);
-  };
 
   const handleResetConfirm = () => {
     setPrevCount(count);
@@ -144,27 +171,46 @@ export default function Home() {
           </h1>
 
           <div className="flex flex-col items-center space-y-6 sm:space-y-8">
-            <div
-              className={`text-7xl sm:text-9xl font-bold text-white counter-number
-                ${
-                  count > prevCount
-                    ? "increment"
-                    : count < prevCount
-                    ? "decrement"
-                    : ""
-                }
-                transition-all duration-150 ease-out`}
-              style={{
-                textShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-              }}
-              aria-live="polite"
-              role="status"
-            >
-              {count}
+            <div className="relative">
+              <div
+                className={`text-7xl sm:text-9xl font-bold text-white counter-number
+                  ${
+                    count > prevCount
+                      ? "increment"
+                      : count < prevCount
+                      ? "decrement"
+                      : ""
+                  }
+                  transition-all duration-150 ease-out min-w-[2ch] text-center
+                  ${isPressed ? "scale-95" : ""}`}
+                style={{
+                  textShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                }}
+                aria-live="polite"
+                role="status"
+              >
+                {formatNumber(count)}
+              </div>
+              <div
+                className="absolute inset-0 pointer-events-none"
+                aria-hidden="true"
+                style={{
+                  background: `radial-gradient(circle at center,
+                    ${
+                      count > prevCount
+                        ? "rgba(74, 222, 128, 0.1)"
+                        : count < prevCount
+                        ? "rgba(248, 113, 113, 0.1)"
+                        : "transparent"
+                    } 0%, transparent 70%)`,
+                  opacity: isPressed ? 1 : 0,
+                  transition: "opacity 0.15s ease-out",
+                }}
+              />
             </div>
 
             <p className="text-base sm:text-lg text-white/80 font-medium pointer-events-none">
-              Tap anywhere to count up
+              Tap or press Space/Enter to count up
             </p>
           </div>
         </div>

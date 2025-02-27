@@ -31,14 +31,50 @@
 .counter-number {
   backface-visibility: hidden;
   transform-style: preserve-3d;
+  min-width: 2ch;
+  text-align: center;
+}
+
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .counter-number.increment {
-  animation: slide-up 0.3s ease-out;
+  animation: slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .counter-number.decrement {
-  animation: slide-down 0.3s ease-out;
+  animation: slide-down 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* リップルエフェクト */
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.animate-ripple {
+  animation: ripple 0.6s linear;
 }
 
 /* タップ時のグラデーション変化 */
