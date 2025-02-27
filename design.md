@@ -1,55 +1,80 @@
-# PWA 実装プラン
+# カウンター機能拡張計画
 
-## 1. 必要なパッケージのインストール
+## 1. UI/UX 設計
 
-```bash
-yarn add next-pwa
+### ボタンレイアウト
+
+- 下部に操作ボタンエリアを配置
+  - 中央: リセットボタン（既存）
+  - 左側: カウントダウンボタン（新規）
+  - 右側: カウントアップボタン（新規、画面タップと同じ機能）
+- ボタン間の適切な間隔確保（min-gap: 1rem）
+- モバイルでの操作性を考慮したボタンサイズ（最小タップ領域: 44px）
+
+### ビジュアルデザイン
+
+- 既存のグラデーション背景との調和
+- 半透明の背景（backdrop-blur-md）を維持
+- アクセシビリティに配慮したコントラスト比
+
+## 2. 機能実装
+
+### カウントダウン機能
+
+```typescript
+const handleCountDown = (e: React.MouseEvent) => {
+  e.stopPropagation();
+  const newCount = count - 1;
+  setCount(newCount);
+  localStorage.setItem("count", newCount.toString());
+};
 ```
 
-## 2. Next.js の設定更新
+### 確認ダイアログ
 
-next.config.js を更新し、PWA の設定を追加：
+- リセット時に確認ダイアログを表示
+- モーダルコンポーネントの実装
 
-- next-pwa の設定
-- Service Worker の自動生成設定
-- キャッシュ戦略の設定
+```typescript
+interface ConfirmDialogProps {
+  isOpen: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+  message: string;
+}
+```
 
-## 3. manifest.json の更新
+### アニメーション
 
-- 既存の設定を活かしつつ、以下を追加：
-  - icons 設定（複数サイズ対応）
-  - maskable icon 対応
-  - splash screen 用の設定
+- ボタン押下時の視覚フィードバック
+- カウント値変更時のトランジション効果
 
-## 4. レイアウトの更新
+## 3. アクセシビリティ
 
-src/app/layout.tsx に以下を追加：
+### キーボード操作
 
-- manifest.json のリンク
-- apple-touch-icon 設定
-- splash screen 対応
+- すべてのボタンにフォーカス可能なスタイル
+- キーボードショートカットの実装
+  - スペース/エンター: カウントアップ
+  - 左矢印: カウントダウン
+  - R: リセット（確認後）
 
-## 5. アイコンの準備
+### ARIA 属性
 
-- 既存の icon-192x192.png を基に以下のサイズを作成：
-  - 512x512 (PWA 標準)
-  - 384x384 (中間サイズ)
-  - 192x192 (既存)
-  - 144x144 (小画面デバイス用)
-  - maskable icon version
+- 適切な aria-label 属性の設定
+- ライブリージョンでのカウント値の通知
 
-## 期待される結果
+## 4. 実装手順
 
-- PC やスマートフォンでアプリとしてインストール可能
-- オフライン対応
-- ネイティブアプリライクな体験
-- スプラッシュスクリーン表示
-- ホーム画面へのインストール促進
+1. コンポーネントの構造更新
+2. 新規機能の実装（カウントダウン、確認ダイアログ）
+3. スタイリングの適用
+4. アクセシビリティ対応
+5. テストと QA
 
-## テスト項目
+## 5. 技術スタック
 
-1. インストール機能
-2. オフライン動作
-3. アプリ起動時の表示
-4. キャッシュ動作
-5. iOS/Android でのホーム画面追加
+- Next.js（既存）
+- TypeScript（型安全性）
+- Tailwind CSS（スタイリング）
+- React Hooks（状態管理）
