@@ -1,11 +1,12 @@
 /** @type {import('next').NextConfig} */
-const nextPWA = require("next-pwa");
+const { default: NextPWA } = require("@ducanh2912/next-pwa");
 
-const withPWA = nextPWA({
+const withPWA = NextPWA({
   dest: "public",
   register: true,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === "development",
+  disable: false,
+  buildExcludes: [/app-build-manifest\.json$/],
 });
 
 const config = {

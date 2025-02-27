@@ -25,16 +25,28 @@ export default function RootLayout({
         />
         <meta name="theme-color" content="#4A90E2" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="カウンター" />
         <meta
           name="apple-mobile-web-app-status-bar-style"
           content="black-translucent"
         />
         <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="version" content="0.1.0" />
         <link rel="manifest" href="/manifest.json" />
         <link
           rel="apple-touch-icon"
           href="/icons/icon-192x192.png"
           sizes="192x192"
+        />
+        <link
+          rel="apple-touch-icon"
+          href="/icons/icon-152x152.png"
+          sizes="152x152"
+        />
+        <link
+          rel="apple-touch-icon"
+          href="/icons/icon-180x180.png"
+          sizes="180x180"
         />
         <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />
         <title>カウンターアプリ</title>
