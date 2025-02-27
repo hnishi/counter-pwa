@@ -35,14 +35,14 @@ const ConfirmDialog = ({
             className="px-6 py-2 bg-red-500/80 hover:bg-red-500/90 text-white rounded-full
               transition-all duration-300 active:scale-95"
           >
-            確認
+            Confirm
           </button>
           <button
             onClick={onCancel}
             className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full
               transition-all duration-300 active:scale-95"
           >
-            キャンセル
+            Cancel
           </button>
         </div>
       </div>
@@ -134,7 +134,7 @@ export default function Home() {
             </div>
 
             <p className="text-base sm:text-lg text-white/80 font-medium pointer-events-none">
-              タップしてカウントアップ
+              Tap anywhere to count up
             </p>
           </div>
         </div>
@@ -147,7 +147,7 @@ export default function Home() {
             hover:bg-white/20 transition-all duration-300 backdrop-blur-md
             border border-white/20 shadow-lg min-w-[120px]
             active:scale-95 pointer-events-auto"
-          aria-label="カウントダウン"
+          aria-label="Count down"
         >
           -1
         </button>
@@ -157,9 +157,9 @@ export default function Home() {
             hover:bg-white/20 transition-all duration-300 backdrop-blur-md
             border border-white/20 shadow-lg min-w-[120px]
             active:scale-95 pointer-events-auto"
-          aria-label="カウンターをリセット"
+          aria-label="Reset counter"
         >
-          リセット
+          Reset
         </button>
         <button
           onClick={handleCountUp}
@@ -167,7 +167,7 @@ export default function Home() {
             hover:bg-white/20 transition-all duration-300 backdrop-blur-md
             border border-white/20 shadow-lg min-w-[120px]
             active:scale-95 pointer-events-auto"
-          aria-label="カウントアップ"
+          aria-label="Count up"
         >
           +1
         </button>
@@ -177,7 +177,7 @@ export default function Home() {
         isOpen={showResetConfirm}
         onConfirm={handleResetConfirm}
         onCancel={() => setShowResetConfirm(false)}
-        message="カウンターをリセットしてもよろしいですか？"
+        message="Are you sure you want to reset the counter?"
       />
     </main>
   );
