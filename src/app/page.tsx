@@ -15,6 +15,19 @@ const ConfirmDialog = ({
   onCancel,
   message,
 }: ConfirmDialogProps) => {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e: KeyboardEvent) => {
+      if (e.code === "Escape") {
+        onCancel();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscKey);
+    return () => window.removeEventListener("keydown", handleEscKey);
+  }, [isOpen, onCancel]);
+
   if (!isOpen) return null;
 
   return (
@@ -141,7 +154,7 @@ export default function Home() {
       "KeyA",
       "KeyS",
     ],
-    RESET: ["Escape"],
+    RESET: ["Escape", "KeyR"],
   };
 
   useEffect(() => {
@@ -202,7 +215,7 @@ export default function Home() {
               </p>
               <p className="text-sm text-white/60">
                 Keyboard shortcuts: Space/Enter/→/↑/K/L/W/D (up), ←/↓/H/J/A/S
-                (down), Esc (reset)
+                (down), R/Esc (reset)
               </p>
             </div>
           </div>
