@@ -140,7 +140,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 flex justify-center items-center gap-4 p-4 sm:p-6 pointer-events-none">
+      <div className="absolute bottom-16 left-0 right-0 flex justify-center items-center gap-4 p-4 sm:p-6 pointer-events-none">
         <button
           onClick={handleCountDown}
           className="px-6 sm:px-8 py-2.5 sm:py-3 bg-white/10 text-white rounded-full
@@ -171,6 +171,20 @@ export default function Home() {
         >
           +1
         </button>
+      </div>
+
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+        <p className="text-xs text-white/40 hover:text-white/60 transition-colors">
+          Created by{" "}
+          <a
+            href="https://github.com/hnishi/counter-pwa"
+            className="underline hover:text-white/80 transition-colors"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            hnishi
+          </a>
+        </p>
       </div>
 
       <ConfirmDialog
