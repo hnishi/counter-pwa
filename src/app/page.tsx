@@ -1,6 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+
+// 振動パターンの定義
+const VIBRATION_PATTERNS = {
+  COUNT_UP: [50] as number[],
+  COUNT_DOWN: [75] as number[],
+  RESET: [50, 50, 50] as number[],
+};
+
+// 振動機能のユーティリティ関数
+const vibrate = (pattern: number[]) => {
+  if (typeof window === "undefined" || !window.navigator?.vibrate) return;
+  window.navigator.vibrate(pattern);
+};
+
+// LocalStorageのキー定義
+const STORAGE_KEYS = {
+  COUNT: "count",
+  VIBRATION_ENABLED: "vibrationEnabled",
+} as const;
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -68,6 +87,32 @@ export default function Home() {
   const [prevCount, setPrevCount] = useState<number>(0);
   const [isPressed, setIsPressed] = useState<boolean>(false);
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+  const [vibrationEnabled, setVibrationEnabled] = useState<boolean>(true);
+
+  // 振動機能の可用性チェック
+  const isVibrationAvailable = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return "vibrate" in window.navigator;
+  }, []);
+
+  // 振動機能の実行
+  const handleVibration = useCallback(
+    (pattern: number[]) => {
+      if (!isVibrationAvailable || !vibrationEnabled) return;
+      vibrate(pattern);
+    },
+    [isVibrationAvailable, vibrationEnabled]
+  );
+
+  // 振動設定の初期化
+  useEffect(() => {
+    const savedVibrationSetting = localStorage.getItem(
+      STORAGE_KEYS.VIBRATION_ENABLED
+    );
+    if (savedVibrationSetting !== null) {
+      setVibrationEnabled(savedVibrationSetting === "true");
+    }
+  }, []);
 
   // リップルエフェクトの作成
   const createRipple = useCallback((event: React.MouseEvent) => {
@@ -96,7 +141,8 @@ export default function Home() {
       setPrevCount(count);
       const newCount = count + 1;
       setCount(newCount);
-      localStorage.setItem("count", newCount.toString());
+      localStorage.setItem(STORAGE_KEYS.COUNT, newCount.toString());
+      handleVibration(VIBRATION_PATTERNS.COUNT_UP);
 
       setIsPressed(true);
       setTimeout(() => setIsPressed(false), 150);
@@ -112,7 +158,8 @@ export default function Home() {
       setPrevCount(count);
       const newCount = count - 1;
       setCount(newCount);
-      localStorage.setItem("count", newCount.toString());
+      localStorage.setItem(STORAGE_KEYS.COUNT, newCount.toString());
+      handleVibration(VIBRATION_PATTERNS.COUNT_DOWN);
     },
     [count, createRipple]
   );
@@ -129,8 +176,9 @@ export default function Home() {
   const handleResetConfirm = useCallback(() => {
     setPrevCount(count);
     setCount(0);
-    localStorage.setItem("count", "0");
+    localStorage.setItem(STORAGE_KEYS.COUNT, "0");
     setShowResetConfirm(false);
+    handleVibration(VIBRATION_PATTERNS.RESET);
   }, [count]);
 
   // キーマッピングの定義
@@ -158,7 +206,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const savedCount = localStorage.getItem("count");
+    const savedCount = localStorage.getItem(STORAGE_KEYS.COUNT);
     if (savedCount) {
       setCount(parseInt(savedCount, 10));
       setPrevCount(parseInt(savedCount, 10));
