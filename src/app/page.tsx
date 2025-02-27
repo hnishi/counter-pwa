@@ -2,23 +2,68 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 
-// 振動パターンの定義
+// フィードバックパターンの定義
 const VIBRATION_PATTERNS = {
   COUNT_UP: [50] as number[],
   COUNT_DOWN: [75] as number[],
   RESET: [50, 50, 50] as number[],
 };
 
-// 振動機能のユーティリティ関数
+const SOUND_PATTERNS = {
+  COUNT_UP: { frequency: 880, duration: 100 }, // A5音
+  COUNT_DOWN: { frequency: 440, duration: 150 }, // A4音
+  RESET: { frequency: 660, duration: 50, repeat: 3 }, // E5音を3回
+};
+
+// フィードバック機能のユーティリティ関数
 const vibrate = (pattern: number[]) => {
   if (typeof window === "undefined" || !window.navigator?.vibrate) return;
   window.navigator.vibrate(pattern);
+};
+
+const playSound = (pattern: {
+  frequency: number;
+  duration: number;
+  repeat?: number;
+}) => {
+  if (typeof window === "undefined") return;
+
+  const audioContext = new (window.AudioContext ||
+    (window as any).webkitAudioContext)();
+  const playNote = () => {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.type = "sine";
+    oscillator.frequency.value = pattern.frequency;
+
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      audioContext.currentTime + pattern.duration / 1000
+    );
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + pattern.duration / 1000);
+  };
+
+  if (pattern.repeat) {
+    for (let i = 0; i < pattern.repeat; i++) {
+      setTimeout(playNote, i * (pattern.duration + 50));
+    }
+  } else {
+    playNote();
+  }
 };
 
 // LocalStorageのキー定義
 const STORAGE_KEYS = {
   COUNT: "count",
   VIBRATION_ENABLED: "vibrationEnabled",
+  SOUND_ENABLED: "soundEnabled",
 } as const;
 
 interface ConfirmDialogProps {
@@ -87,15 +132,22 @@ export default function Home() {
   const [prevCount, setPrevCount] = useState<number>(0);
   const [isPressed, setIsPressed] = useState<boolean>(false);
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+  const [showSettings, setShowSettings] = useState<boolean>(false);
   const [vibrationEnabled, setVibrationEnabled] = useState<boolean>(true);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(false);
 
-  // 振動機能の可用性チェック
+  // フィードバック機能の可用性チェック
   const isVibrationAvailable = useMemo(() => {
     if (typeof window === "undefined") return false;
     return "vibrate" in window.navigator;
   }, []);
 
-  // 振動機能の実行
+  const isSoundAvailable = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return !!(window.AudioContext || (window as any).webkitAudioContext);
+  }, []);
+
+  // フィードバック機能の実行
   const handleVibration = useCallback(
     (pattern: number[]) => {
       if (!isVibrationAvailable || !vibrationEnabled) return;
@@ -104,14 +156,35 @@ export default function Home() {
     [isVibrationAvailable, vibrationEnabled]
   );
 
-  // 振動設定の初期化
+  const handleSound = useCallback(
+    (pattern: { frequency: number; duration: number; repeat?: number }) => {
+      if (!isSoundAvailable || !soundEnabled) return;
+      playSound(pattern);
+    },
+    [isSoundAvailable, soundEnabled]
+  );
+
+  // 設定の初期化
   useEffect(() => {
     const savedVibrationSetting = localStorage.getItem(
       STORAGE_KEYS.VIBRATION_ENABLED
     );
+    const savedSoundSetting = localStorage.getItem(STORAGE_KEYS.SOUND_ENABLED);
+
     if (savedVibrationSetting !== null) {
       setVibrationEnabled(savedVibrationSetting === "true");
     }
+    if (savedSoundSetting !== null) {
+      setSoundEnabled(savedSoundSetting === "true");
+    }
+  }, []);
+
+  // 設定の保存
+  const updateSettings = useCallback((vibration: boolean, sound: boolean) => {
+    setVibrationEnabled(vibration);
+    setSoundEnabled(sound);
+    localStorage.setItem(STORAGE_KEYS.VIBRATION_ENABLED, String(vibration));
+    localStorage.setItem(STORAGE_KEYS.SOUND_ENABLED, String(sound));
   }, []);
 
   // リップルエフェクトの作成
@@ -143,11 +216,12 @@ export default function Home() {
       setCount(newCount);
       localStorage.setItem(STORAGE_KEYS.COUNT, newCount.toString());
       handleVibration(VIBRATION_PATTERNS.COUNT_UP);
+      handleSound(SOUND_PATTERNS.COUNT_UP);
 
       setIsPressed(true);
       setTimeout(() => setIsPressed(false), 150);
     },
-    [count, createRipple]
+    [count, createRipple, handleVibration, handleSound]
   );
 
   const handleCountDown = useCallback(
@@ -160,8 +234,9 @@ export default function Home() {
       setCount(newCount);
       localStorage.setItem(STORAGE_KEYS.COUNT, newCount.toString());
       handleVibration(VIBRATION_PATTERNS.COUNT_DOWN);
+      handleSound(SOUND_PATTERNS.COUNT_DOWN);
     },
-    [count, createRipple]
+    [count, createRipple, handleVibration, handleSound]
   );
 
   const handleResetClick = useCallback(
@@ -179,7 +254,8 @@ export default function Home() {
     localStorage.setItem(STORAGE_KEYS.COUNT, "0");
     setShowResetConfirm(false);
     handleVibration(VIBRATION_PATTERNS.RESET);
-  }, [count]);
+    handleSound(SOUND_PATTERNS.RESET);
+  }, [count, handleVibration, handleSound]);
 
   // キーマッピングの定義
   const KEY_MAPPINGS = {
@@ -300,7 +376,7 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+      <div className="absolute bottom-4 left-0 right-0 flex justify-between items-center px-4">
         <p className="text-xs text-white/40 hover:text-white/60 transition-colors">
           Created by{" "}
           <a
@@ -312,6 +388,66 @@ export default function Home() {
             hnishi
           </a>
         </p>
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowSettings(!showSettings);
+          }}
+          className="text-white/40 hover:text-white/60 transition-colors relative"
+          aria-label="Settings"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </button>
+
+        {showSettings && (
+          <div
+            className="absolute bottom-10 right-4 p-4 rounded-xl glass-panel backdrop-blur-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-4">
+                <label className="text-sm text-white/80">振動</label>
+                <button
+                  onClick={() =>
+                    updateSettings(!vibrationEnabled, soundEnabled)
+                  }
+                  className={`px-3 py-1 rounded-full transition-colors ${
+                    vibrationEnabled ? "bg-white/20" : "bg-white/5"
+                  }`}
+                  aria-pressed={vibrationEnabled}
+                >
+                  {vibrationEnabled ? "ON" : "OFF"}
+                </button>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <label className="text-sm text-white/80">音声</label>
+                <button
+                  onClick={() =>
+                    updateSettings(vibrationEnabled, !soundEnabled)
+                  }
+                  className={`px-3 py-1 rounded-full transition-colors ${
+                    soundEnabled ? "bg-white/20" : "bg-white/5"
+                  }`}
+                  aria-pressed={soundEnabled}
+                >
+                  {soundEnabled ? "ON" : "OFF"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <ConfirmDialog
