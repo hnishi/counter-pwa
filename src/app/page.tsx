@@ -348,7 +348,7 @@ export default function Home() {
       onClick={handleCountUp}
       className="h-screen gradient-active gradient-animate relative overflow-hidden cursor-pointer"
     >
-      <div className="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-6">
+      <div className="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-6 -mt-16">
         <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl glass-panel">
           <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-white text-center tracking-tight">
             Counter
@@ -387,7 +387,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="absolute bottom-16 left-0 right-0 flex justify-center items-center gap-4 p-4 sm:p-6 pointer-events-none">
+      <div className="absolute bottom-32 left-0 right-0 flex justify-center items-center gap-4 p-4 sm:p-6 pointer-events-none">
         <button
           onClick={handleCountDown}
           className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full
@@ -417,7 +417,7 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="absolute bottom-4 left-0 right-0 flex justify-between items-center px-4">
+      <div className="absolute bottom-28 left-0 right-0 flex justify-between items-center px-4">
         <p className="text-xs text-white/40 hover:text-white/60 transition-colors">
           Created by{" "}
           <a
