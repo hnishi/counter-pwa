@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <head>
         <meta charSet="utf-8" />
         <meta
@@ -21,16 +21,23 @@ export default function RootLayout({
         />
         <meta
           name="description"
-          content="A modern counter progressive web app"
+          content="シンプルなPWAカウンターアプリケーション"
         />
-        <meta name="theme-color" content="#6366f1" />
+        <meta name="theme-color" content="#4A90E2" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta
           name="apple-mobile-web-app-status-bar-style"
           content="black-translucent"
         />
         <meta name="mobile-web-app-capable" content="yes" />
-        <title>Counter App</title>
+        <link rel="manifest" href="/manifest.json" />
+        <link
+          rel="apple-touch-icon"
+          href="/icons/icon-192x192.png"
+          sizes="192x192"
+        />
+        <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />
+        <title>カウンターアプリ</title>
       </head>
       <body className={`${inter.className} overscroll-none`}>
         {children}
