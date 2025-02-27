@@ -12,13 +12,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" className="gradient-animate">
+    <html lang="ja">
       <head>
         <meta charSet="utf-8" />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0"
         />
+        <style>
+          {`
+            :root {
+              --sat: env(safe-area-inset-top);
+            }
+          `}
+        </style>
         <meta
           name="description"
           content="シンプルなPWAカウンターアプリケーション"

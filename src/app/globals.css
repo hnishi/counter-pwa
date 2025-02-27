@@ -4,19 +4,64 @@
 
 /* 基本スタイル */
 @layer base {
+  :root {
+    --gradient-normal: linear-gradient(-45deg, #6366f1, #a855f7, #ec4899);
+    --gradient-active: linear-gradient(-45deg, #7c3aed, #d946ef, #f43f5e);
+  }
+
   html, body {
     @apply min-h-screen touch-none overscroll-none overflow-hidden;
-    background: linear-gradient(-45deg, #6366f1, #a855f7, #ec4899);
-    background-size: 200% 200%;
+    margin: 0;
+    padding: 0;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
+    background-color: #ec4899;
+    transition: background-color 0.3s ease-in-out;
+  }
+
+  html:has(.gradient-active:active),
+  body:has(.gradient-active:active) {
+    background-color: #7c3aed;
+  }
+
+  html::before,
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient-normal);
+    background-size: 200% 200%;
+    z-index: -1;
+    min-height: calc(100vh + env(safe-area-inset-top));
+    transition: background 0.3s ease-in-out;
+  }
+
+  html:has(.gradient-active:active)::before,
+  body:has(.gradient-active:active)::before {
+    background: var(--gradient-active);
+    background-size: 200% 200%;
   }
 }
 
 /* カスタムユーティリティ */
 @layer utilities {
-  .gradient-animate {
+  .gradient-animate::before {
     animation: gradient-shift 3s ease infinite;
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 
@@ -48,10 +93,12 @@
   transition: transform 0.3s ease-in-out;
 }
 
+.gradient-active {
+  transition: transform 0.3s ease-in-out;
+}
+
 .gradient-active:active {
   transform: scale(0.99);
-  background: linear-gradient(-45deg, #7c3aed, #d946ef, #f43f5e);
-  background-size: 200% 200%;
 }
 
 /* パネルのグラス効果 */

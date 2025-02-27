@@ -346,7 +346,10 @@ export default function Home() {
   return (
     <main
       onClick={handleCountUp}
-      className="h-screen gradient-active gradient-animate relative overflow-hidden cursor-pointer"
+      className="min-h-screen h-[100vh] gradient-active gradient-animate relative overflow-hidden cursor-pointer"
+      style={{
+        minHeight: "calc(100vh + env(safe-area-inset-top))",
+      }}
     >
       <div className="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-6 -mt-16">
         <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl glass-panel">
