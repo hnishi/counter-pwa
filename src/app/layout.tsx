@@ -1,10 +1,33 @@
-"use client";
-
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
+import { Metadata } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "カウンターアプリ",
+  description: "シンプルなPWAカウンターアプリケーション",
+  manifest: "/manifest.json",
+  themeColor: "#6366f1",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    viewportFit: "cover",
+    userScalable: false,
+    maximumScale: 1.0,
+    minimumScale: 1.0,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "カウンター",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+    version: "0.1.0",
+  },
+};
 
 export default function RootLayout({
   children,
@@ -14,32 +37,6 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
-        <meta charSet="utf-8" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0"
-        />
-        <style>
-          {`
-            :root {
-              --sat: env(safe-area-inset-top);
-            }
-          `}
-        </style>
-        <meta
-          name="description"
-          content="シンプルなPWAカウンターアプリケーション"
-        />
-        <meta name="theme-color" content="#6366f1" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-title" content="カウンター" />
-        <meta
-          name="apple-mobile-web-app-status-bar-style"
-          content="black-translucent"
-        />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="version" content="0.1.0" />
-        <link rel="manifest" href="/manifest.json" />
         <link
           rel="apple-touch-icon"
           href="/icons/icon-192x192.png"
@@ -56,7 +53,7 @@ export default function RootLayout({
           sizes="180x180"
         />
         <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />
-        <title>カウンターアプリ</title>
+        <style>{`:root { --sat: env(safe-area-inset-top); }`}</style>
       </head>
       <body className={`${inter.className} overscroll-none`}>
         {children}
