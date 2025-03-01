@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.hnishi.counter.twa",
+        "sha256_cert_fingerprints": ["7F:46:0C:B0:74:47:75:19:B6:E2:62:28:67:1F:B3:37:ED:B2:46:01:BB:F0:35:EA:F9:1C:A5:EA:64:37:EC:F9"]
+      }
+    }]
