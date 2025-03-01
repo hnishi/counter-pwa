@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "deploy": "vercel deploy",
     "generate-icons": "convert public/icons/icon.svg -resize 152x152 public/icons/icon-152x152.png && convert public/icons/icon.svg -resize 180x180 public/icons/icon-180x180.png"
   },
   "dependencies": {
