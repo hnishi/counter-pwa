@@ -1,7 +1,7 @@
 {
-  "name": "PWAカウンターアプリ",
-  "short_name": "カウンター",
-  "description": "シンプルなPWAカウンターアプリケーション",
+  "name": "Simplest Counter PWA",
+  "short_name": "Simplest Counter",
+  "description": "The simplest counter application that just works",
   "version": "0.1.0",
   "start_url": "/",
   "scope": "/",

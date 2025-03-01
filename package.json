@@ -1,8 +1,9 @@
 {
-  "name": "counter-pwa",
+  "name": "simplest-counter-pwa",
   "version": "0.1.0",
   "private": false,
   "license": "MIT",
+  "description": "The simplest counter application that just works",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
